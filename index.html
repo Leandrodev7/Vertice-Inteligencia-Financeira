@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Vértice — plataforma de inteligência financeira para acompanhar investimentos e patrimônio."
+    />
+    <title>Vértice | Inteligência Financeira</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar">
+        <a href="#" class="brand" aria-label="Vértice, página inicial">
+          <span class="brand-mark">V</span>
+          <span class="brand-copy">
+            <strong>VÉRTICE</strong>
+            <small>INTELIGÊNCIA FINANCEIRA</small>
+          </span>
+        </a>
+
+        <div class="nav-label">MENU PRINCIPAL</div>
+        <nav class="navigation" aria-label="Navegação principal">
+          <a href="#visao-geral" class="nav-link active">
+            <span>▦</span> Visão geral
+          </a>
+          <a href="#investimentos" class="nav-link">
+            <span>◫</span> Investimentos
+          </a>
+          <a href="#distribuicao" class="nav-link">
+            <span>◉</span> Minha carteira
+          </a>
+          <a href="#indicadores" class="nav-link">
+            <span>⌁</span> Indicadores
+          </a>
+          <a href="#historico" class="nav-link"> <span>◷</span> Histórico </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <div class="status-card">
+            <span class="status-dot"></span>
+            <div>
+              <strong>Ambiente de demonstração</strong>
+              <small>Valores ilustrativos</small>
+            </div>
+          </div>
+          <div class="sidebar-footer">
+            Vértice Financeiro <span>•</span> 0.1
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content" id="visao-geral">
+        <header class="topbar">
+          <button
+            class="menu-toggle"
+            id="menu-toggle"
+            aria-label="Abrir menu"
+            aria-expanded="false"
+          >
+            ☰
+          </button>
+
+          <div class="breadcrumb">
+            <span>Workspace</span><span class="breadcrumb-separator">/</span>
+            <strong>Visão geral</strong>
+          </div>
+
+          <div class="topbar-right">
+            <span class="demo-badge">DEMO</span>
+            <div class="avatar" aria-label="Perfil demonstrativo">V</div>
+          </div>
+        </header>
+
+        <section class="page-heading">
+          <div>
+            <p class="eyebrow">PAINEL FINANCEIRO</p>
+            <h1>Visão geral</h1>
+            <p class="page-description">
+              Uma visão clara dos seus investimentos e da evolução do seu
+              patrimônio.
+            </p>
+          </div>
+          <button class="button button-secondary" id="export-button">
+            ↓ <span>Exportar resumo</span>
+          </button>
+        </section>
+
+        <div class="demo-notice">
+          <span>ⓘ</span>
+          <p>
+            Você está visualizando dados fictícios para demonstração. Nenhum
+            valor representa uma carteira real.
+          </p>
+        </div>
+
+        <section class="metrics-grid" aria-label="Resumo financeiro">
+          <article class="metric-card">
+            <div class="metric-heading">
+              <span>Patrimônio total</span>
+              <span class="metric-icon gold">◇</span>
+            </div>
+            <div class="metric-value" id="patrimonio">R$ 128.450,80</div>
+            <div class="metric-foot">Capital investido + rendimentos</div>
+            <div class="metric-decoration gold-line"></div>
+          </article>
+
+          <article class="metric-card">
+            <div class="metric-heading">
+              <span>Rendimento no mês</span>
+              <span class="metric-icon green">↗</span>
+            </div>
+            <div class="metric-value positive">+ R$ 1.284,50</div>
+            <div class="metric-foot">
+              <span class="positive">+1,02%</span> no período demonstrativo
+            </div>
+            <div class="metric-decoration green-line"></div>
+          </article>
+
+          <article class="metric-card">
+            <div class="metric-heading">
+              <span>Rentabilidade acumulada</span>
+              <span class="metric-icon purple">%</span>
+            </div>
+            <div class="metric-value">+10,42%</div>
+            <div class="metric-foot">Exemplo de desempenho da carteira</div>
+            <div class="metric-decoration purple-line"></div>
+          </article>
+
+          <article class="metric-card">
+            <div class="metric-heading">
+              <span>Próximos vencimentos</span>
+              <span class="metric-icon orange">◷</span>
+            </div>
+            <div class="metric-value">
+              03 <span class="metric-unit">ativos</span>
+            </div>
+            <div class="metric-foot">Exemplo de alertas de vencimento</div>
+            <div class="metric-decoration orange-line"></div>
+          </article>
+        </section>
+
+        <section class="charts-grid">
+          <article class="panel chart-panel" id="historico">
+            <div class="panel-heading">
+              <div>
+                <h2>Evolução do patrimônio</h2>
+                <p>Acompanhamento histórico demonstrativo</p>
+              </div>
+              <select
+                id="period-filter"
+                class="select-control"
+                aria-label="Período do gráfico"
+              >
+                <option value="6">6 meses</option>
+                <option value="12">12 meses</option>
+              </select>
+            </div>
+            <div class="chart-summary">
+              <strong>R$ 128.450,80</strong>
+              <span class="positive">↗ +10,42%</span>
+            </div>
+            <div class="line-chart-wrap">
+              <canvas
+                id="patrimonio-chart"
+                aria-label="Gráfico demonstrativo de evolução do patrimônio"
+              ></canvas>
+            </div>
+          </article>
+
+          <article class="panel allocation-panel" id="distribuicao">
+            <div class="panel-heading">
+              <div>
+                <h2>Distribuição da carteira</h2>
+                <p>Composição ilustrativa</p>
+              </div>
+              <button
+                class="icon-button"
+                id="allocation-info"
+                aria-label="Informações da distribuição"
+              >
+                ⓘ
+              </button>
+            </div>
+            <div class="donut-wrap">
+              <canvas
+                id="allocation-chart"
+                aria-label="Gráfico demonstrativo de distribuição dos investimentos"
+              ></canvas>
+              <div class="donut-center">
+                <small>Patrimônio</small>
+                <strong>100%</strong>
+              </div>
+            </div>
+            <div class="legend-list">
+              <div class="legend-item">
+                <span class="legend-name"
+                  ><i class="legend-dot dot-green"></i>CDB</span
+                >
+                <strong>45%</strong>
+              </div>
+              <div class="legend-item">
+                <span class="legend-name"
+                  ><i class="legend-dot dot-purple"></i>Tesouro Direto</span
+                >
+                <strong>30%</strong>
+              </div>
+              <div class="legend-item">
+                <span class="legend-name"
+                  ><i class="legend-dot dot-orange"></i>LCI / LCA</span
+                >
+                <strong>25%</strong>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="panel investments-panel" id="investimentos">
+          <div class="panel-heading investments-heading">
+            <div>
+              <h2>Meus investimentos</h2>
+              <p>Exemplos de produtos de renda fixa</p>
+            </div>
+            <div class="table-actions">
+              <input
+                id="investment-search"
+                class="search-control"
+                type="search"
+                placeholder="Buscar investimento..."
+                aria-label="Buscar investimento"
+              />
+              <button class="button button-primary" id="add-investment">
+                + Novo investimento
+              </button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Produto</th>
+                  <th>Valor aplicado</th>
+                  <th>Rentabilidade</th>
+                  <th>Vencimento</th>
+                  <th>Situação</th>
+                </tr>
+              </thead>
+              <tbody id="investment-table">
+                <tr>
+                  <td>
+                    <div class="product-name">
+                      <span class="product-icon green-bg">C</span>
+                      <div>
+                        <strong>CDB 100% CDI</strong
+                        ><small>Banco demonstrativo</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>R$ 50.000,00</td>
+                  <td class="positive">+8,40%</td>
+                  <td>15/06/2027</td>
+                  <td><span class="status-pill status-active">Ativo</span></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="product-name">
+                      <span class="product-icon purple-bg">T</span>
+                      <div>
+                        <strong>Tesouro IPCA+</strong
+                        ><small>Título ilustrativo</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>R$ 45.000,00</td>
+                  <td class="positive">+11,20%</td>
+                  <td>15/08/2029</td>
+                  <td><span class="status-pill status-active">Ativo</span></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="product-name">
+                      <span class="product-icon orange-bg">L</span>
+                      <div>
+                        <strong>LCI 95% CDI</strong
+                        ><small>Banco demonstrativo</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>R$ 33.450,80</td>
+                  <td class="positive">+7,10%</td>
+                  <td>20/12/2026</td>
+                  <td>
+                    <span class="status-pill status-attention">A vencer</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div id="empty-state" class="empty-state" hidden>
+              Nenhum investimento encontrado com esse nome.
+            </div>
+          </div>
+          <div class="table-footer">
+            <span>3 registros demonstrativos</span>
+            <span>Os valores serão substituídos pelos dados do sistema.</span>
+          </div>
+        </section>
+
+        <section class="indicators-grid" id="indicadores">
+          <article class="panel indicator-card">
+            <div class="indicator-top">
+              <span>SELIC</span><span class="indicator-symbol green">↗</span>
+            </div>
+            <strong>—</strong>
+            <p>Taxa básica de juros</p>
+            <small>Aguardando integração com fonte oficial</small>
+          </article>
+          <article class="panel indicator-card">
+            <div class="indicator-top">
+              <span>CDI</span><span class="indicator-symbol purple">⌁</span>
+            </div>
+            <strong>—</strong>
+            <p>Referência para renda fixa</p>
+            <small>Aguardando integração com fonte oficial</small>
+          </article>
+          <article class="panel indicator-card">
+            <div class="indicator-top">
+              <span>IPCA</span><span class="indicator-symbol orange">％</span>
+            </div>
+            <strong>—</strong>
+            <p>Índice de inflação</p>
+            <small>Aguardando integração com fonte oficial</small>
+          </article>
+        </section>
+
+        <footer class="app-footer">
+          <span>Vértice — Inteligência Financeira</span>
+          <span>Protótipo em desenvolvimento · Dados demonstrativos</span>
+        </footer>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

@@ -678,13 +678,9 @@
       }
 
       try {
-        const { data, error } = await clienteSupabase.auth.getUser();
+        const { data } = await clienteSupabase.auth.getSession();
 
-        if (error) {
-          console.error("Erro ao verificar sessão:", error);
-        }
-
-        usuarioAtual = data?.user || null;
+        usuarioAtual = data?.session?.user || null;
 
         if (usuarioAtual) {
           await carregarInvestimentos();

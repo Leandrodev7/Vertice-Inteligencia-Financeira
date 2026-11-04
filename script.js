@@ -58,6 +58,17 @@
     LCA: "orange-bg",
   };
 
+  const CORES_GRAFICO = [
+    "#35c58b",
+    "#a78bfa",
+    "#f5a65b",
+    "#60a5fa",
+    "#f16f78",
+    "#d8b86c",
+    "#38bdf8",
+    "#fb7185",
+  ];
+
   // Rentabilidade exibida: taxa + indexador (ex.: 100% CDI)
   function rentabilidadeBR(item) {
     const taxa = taxaBR(item.taxa_percentual);
@@ -94,10 +105,26 @@
     const botaoNovo = document.querySelector("#add-investment");
     const botaoExportar = document.querySelector("#export-button");
     const campoPesquisa = document.querySelector("#investment-search");
+    const totalInvestido = document.querySelector("#total-investido");
+    const quantidadeInvestimentos = document.querySelector(
+      "#quantidade-investimentos",
+    );
+    const quantidadeModalidades = document.querySelector(
+      "#quantidade-modalidades",
+    );
+    const vencimentosProximos = document.querySelector(
+      "#vencimentos-proximos",
+    );
+    const graficoCanvas = document.querySelector("#allocation-chart");
+    const legendaDistribuicao = document.querySelector("#allocation-legend");
+    const estadoDistribuicao = document.querySelector("#allocation-empty");
 
     let investimentos = [];
     let usuarioAtual = null;
     let clienteSupabase = null;
+    let carteiraCarregada = false;
+    let erroCarregamento = false;
+    let graficoDistribuicao = null;
 
     window.verticeInvestimentos = investimentos;
 
@@ -501,6 +528,205 @@
     // Filtro da tabela (busca) e mensagem de lista vazia
     // -----------------------------------------------------
 
+    function atualizarDashboard() {
+      if (!usuarioAtual || !carteiraCarregada || erroCarregamento) {
+        const valor = "—";
+
+        if (totalInvestido) totalInvestido.textContent = valor;
+        if (quantidadeInvestimentos) {
+          quantidadeInvestimentos.textContent = valor;
+        }
+        if (quantidadeModalidades) {
+          quantidadeModalidades.textContent = valor;
+        }
+        if (vencimentosProximos) vencimentosProximos.textContent = valor;
+        if (legendaDistribuicao) legendaDistribuicao.replaceChildren();
+
+        if (graficoDistribuicao) {
+          graficoDistribuicao.destroy();
+          graficoDistribuicao = null;
+        }
+
+        if (graficoCanvas) graficoCanvas.hidden = true;
+        if (estadoDistribuicao) {
+          estadoDistribuicao.hidden = false;
+          estadoDistribuicao.textContent = !usuarioAtual
+            ? "Entre na sua conta para consultar a distribuição."
+            : erroCarregamento
+              ? "Não foi possível carregar a distribuição dos investimentos."
+              : "Carregando seus investimentos...";
+        }
+
+        return;
+      }
+
+      const modalidades = new Map();
+      let total = 0;
+      let vencimentos = 0;
+
+      investimentos.forEach((item) => {
+        const tipo = String(item.tipo || "").trim() || "Não informado";
+        const valor = Number(item.valor_investido);
+        const valorValido = Number.isFinite(valor) && valor >= 0 ? valor : 0;
+
+        modalidades.set(tipo, (modalidades.get(tipo) || 0) + valorValido);
+        total += valorValido;
+
+        if (item.data_vencimento) {
+          const vencimento = new Date(
+            `${String(item.data_vencimento).slice(0, 10)}T12:00:00`,
+          );
+          const dias = Math.ceil((vencimento - new Date()) / 86400000);
+
+          if (!Number.isNaN(vencimento.getTime()) && dias >= 0 && dias <= 90) {
+            vencimentos += 1;
+          }
+        }
+      });
+
+      if (totalInvestido) totalInvestido.textContent = valorBR(total);
+      if (quantidadeInvestimentos) {
+        quantidadeInvestimentos.textContent = String(investimentos.length);
+      }
+      if (quantidadeModalidades) {
+        quantidadeModalidades.textContent = String(modalidades.size);
+      }
+      if (vencimentosProximos) {
+        vencimentosProximos.textContent = String(vencimentos);
+      }
+
+      const distribuicao = Array.from(modalidades, ([tipo, valor]) => ({
+        tipo,
+        valor,
+      })).sort((a, b) => b.valor - a.valor);
+
+      if (legendaDistribuicao) legendaDistribuicao.replaceChildren();
+
+      if (total <= 0 || distribuicao.length === 0) {
+        if (graficoDistribuicao) {
+          graficoDistribuicao.destroy();
+          graficoDistribuicao = null;
+        }
+
+        if (graficoCanvas) graficoCanvas.hidden = true;
+        if (estadoDistribuicao) {
+          estadoDistribuicao.hidden = false;
+          estadoDistribuicao.textContent =
+            investimentos.length === 0
+              ? "Cadastre um investimento para ver a distribuição da carteira."
+              : "Não há valores investidos para exibir a distribuição.";
+        }
+
+        return;
+      }
+
+      const cores = distribuicao.map(
+        (_, indice) => CORES_GRAFICO[indice % CORES_GRAFICO.length],
+      );
+
+      if (legendaDistribuicao) {
+        const percentualBR = new Intl.NumberFormat("pt-BR", {
+          maximumFractionDigits: 1,
+        });
+
+        distribuicao.forEach((item, indice) => {
+          const linha = document.createElement("div");
+          linha.className = "legend-item";
+
+          const nome = document.createElement("span");
+          nome.className = "legend-name";
+
+          const ponto = document.createElement("i");
+          ponto.className = "legend-dot";
+          ponto.style.backgroundColor = cores[indice];
+
+          const textoNome = document.createElement("span");
+          textoNome.textContent = item.tipo;
+          nome.append(ponto, textoNome);
+
+          const valor = document.createElement("strong");
+          const percentual = (item.valor / total) * 100;
+          valor.textContent = `${valorBR(item.valor)} · ${percentualBR.format(
+            percentual,
+          )}%`;
+
+          linha.append(nome, valor);
+          legendaDistribuicao.appendChild(linha);
+        });
+      }
+
+      if (!graficoCanvas || typeof Chart === "undefined") {
+        if (estadoDistribuicao) {
+          estadoDistribuicao.hidden = false;
+          estadoDistribuicao.textContent =
+            "Não foi possível exibir o gráfico de distribuição.";
+        }
+
+        return;
+      }
+
+      if (estadoDistribuicao) estadoDistribuicao.hidden = true;
+      graficoCanvas.hidden = false;
+
+      const dados = {
+        labels: distribuicao.map((item) => item.tipo),
+        datasets: [
+          {
+            data: distribuicao.map((item) => item.valor),
+            backgroundColor: cores,
+            borderColor: "#111823",
+            borderWidth: 3,
+            hoverOffset: 8,
+          },
+        ],
+      };
+
+      const opcoes = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label(contexto) {
+                const valor = contexto.parsed;
+                const percentual = (valor / total) * 100;
+
+                return `${contexto.label}: ${valorBR(valor)} (${new Intl.NumberFormat(
+                  "pt-BR",
+                  { maximumFractionDigits: 1 },
+                ).format(percentual)}%)`;
+              },
+            },
+          },
+        },
+      };
+
+      if (graficoDistribuicao) {
+        graficoDistribuicao.data = dados;
+        graficoDistribuicao.options = opcoes;
+        graficoDistribuicao.update();
+      } else {
+        const contexto = graficoCanvas.getContext("2d");
+
+        if (!contexto) {
+          if (estadoDistribuicao) {
+            estadoDistribuicao.hidden = false;
+            estadoDistribuicao.textContent =
+              "Não foi possível exibir o gráfico de distribuição.";
+          }
+
+          return;
+        }
+
+        graficoDistribuicao = new Chart(contexto, {
+          type: "pie",
+          data: dados,
+          options: opcoes,
+        });
+      }
+    }
+
     function aplicarFiltro() {
       if (!tabela) return;
 
@@ -523,7 +749,13 @@
       if (!estadoVazio) return;
 
       if (investimentos.length === 0) {
-        estadoVazio.textContent = "Nenhum investimento cadastrado ainda.";
+        estadoVazio.textContent = !usuarioAtual
+          ? "Entre na sua conta para visualizar seus investimentos."
+          : erroCarregamento
+            ? "Não foi possível carregar seus investimentos."
+            : !carteiraCarregada
+              ? "Carregando seus investimentos..."
+              : "Nenhum investimento cadastrado ainda.";
         estadoVazio.hidden = false;
       } else if (visiveis === 0) {
         estadoVazio.textContent =
@@ -539,9 +771,10 @@
     // -----------------------------------------------------
 
     function atualizarTabela() {
-      if (!tabela) return;
-
       window.verticeInvestimentos = investimentos;
+      atualizarDashboard();
+
+      if (!tabela) return;
 
       tabela.innerHTML = "";
 
@@ -595,13 +828,25 @@
 
       if (rodape) {
         const textos = rodape.querySelectorAll("span");
+        const dadosDisponiveis =
+          usuarioAtual && carteiraCarregada && !erroCarregamento;
 
         if (textos[0]) {
-          textos[0].textContent = `${investimentos.length} investimento(s) cadastrado(s)`;
+          textos[0].textContent = dadosDisponiveis
+            ? `${investimentos.length} investimento(s) cadastrado(s)`
+            : !usuarioAtual
+              ? "Entre para consultar seus investimentos."
+              : erroCarregamento
+                ? "Não foi possível carregar os investimentos."
+                : "Carregando seus investimentos...";
         }
 
         if (textos[1]) {
-          textos[1].textContent = "Dados carregados da sua conta.";
+          textos[1].textContent = dadosDisponiveis
+            ? "Dados carregados da sua conta."
+            : erroCarregamento
+              ? "Tente novamente mais tarde."
+              : "Os dados serão exibidos após o carregamento.";
         }
       }
 
@@ -615,6 +860,10 @@
 
     async function carregarInvestimentos() {
       if (!clienteSupabase || !usuarioAtual) return false;
+
+      carteiraCarregada = false;
+      erroCarregamento = false;
+      atualizarDashboard();
 
       if (tabela) {
         tabela.innerHTML = `
@@ -635,6 +884,7 @@
           console.error("Erro ao consultar investimentos:", error);
 
           investimentos = [];
+          erroCarregamento = true;
           atualizarTabela();
 
           mensagem(
@@ -646,11 +896,15 @@
         }
 
         investimentos = Array.isArray(data) ? data : [];
+        carteiraCarregada = true;
         atualizarTabela();
 
         return true;
       } catch (erro) {
         console.error("Erro inesperado ao carregar:", erro);
+        investimentos = [];
+        erroCarregamento = true;
+        atualizarTabela();
         mensagem("Ocorreu um erro ao carregar os investimentos.", "erro");
 
         return false;
@@ -677,8 +931,35 @@
         return;
       }
 
+      let recebeuEventoAutenticacao = false;
+
+      clienteSupabase.auth.onAuthStateChange((evento, sessao) => {
+        recebeuEventoAutenticacao = true;
+        usuarioAtual = sessao?.user || null;
+
+        if ((evento === "INITIAL_SESSION" || evento === "SIGNED_IN") && usuarioAtual) {
+          // Evita iniciar chamadas Supabase dentro do callback de autenticação.
+          setTimeout(() => carregarInvestimentos(), 0);
+        }
+
+        if (
+          evento === "SIGNED_OUT" ||
+          (evento === "INITIAL_SESSION" && !usuarioAtual)
+        ) {
+          investimentos = [];
+          carteiraCarregada = false;
+          erroCarregamento = false;
+          atualizarTabela();
+        }
+      });
+
       try {
-        const { data } = await clienteSupabase.auth.getSession();
+        const { data, error } = await clienteSupabase.auth.getSession();
+
+        if (error) throw error;
+
+        // O observador pode ter recebido uma sessão mais recente enquanto getSession aguardava.
+        if (recebeuEventoAutenticacao) return;
 
         usuarioAtual = data?.session?.user || null;
 
@@ -686,29 +967,25 @@
           await carregarInvestimentos();
         } else {
           investimentos = [];
+          carteiraCarregada = false;
+          erroCarregamento = false;
           atualizarTabela();
         }
-
-        clienteSupabase.auth.onAuthStateChange((evento, sessao) => {
-          usuarioAtual = sessao?.user || null;
-
-          if (evento === "SIGNED_IN" && usuarioAtual) {
-            // Evita iniciar chamadas Supabase dentro do callback de autenticação.
-            setTimeout(() => carregarInvestimentos(), 0);
-          }
-
-          if (evento === "SIGNED_OUT") {
-            investimentos = [];
-            atualizarTabela();
-          }
-        });
       } catch (erro) {
         console.error("Falha ao iniciar Supabase:", erro);
 
-        mensagem(
-          "Não foi possível iniciar a conexão com o banco de dados.",
-          "erro",
-        );
+        if (!recebeuEventoAutenticacao) {
+          usuarioAtual = null;
+          investimentos = [];
+          carteiraCarregada = false;
+          erroCarregamento = true;
+          atualizarTabela();
+
+          mensagem(
+            "Não foi possível iniciar a conexão com o banco de dados.",
+            "erro",
+          );
+        }
       }
     }
 
@@ -893,59 +1170,6 @@
     }
 
     // -----------------------------------------------------
-    // Gráficos demonstrativos existentes
-    // -----------------------------------------------------
-
-    if (typeof Chart !== "undefined") {
-      document.querySelectorAll("canvas").forEach((canvas) => {
-        if (Chart.getChart(canvas)) return;
-
-        const contexto = canvas.getContext("2d");
-        if (!contexto) return;
-
-        const tipo = canvas.dataset.chartType || "line";
-
-        const rotulos = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"];
-
-        new Chart(contexto, {
-          type: tipo,
-          data: {
-            labels: rotulos,
-            datasets: [
-              {
-                label: "Demonstração",
-                data: [12, 19, 15, 24, 21, 30],
-                borderColor: "#60a5fa",
-                backgroundColor:
-                  tipo === "line"
-                    ? "rgba(96,165,250,.15)"
-                    : [
-                        "#60a5fa",
-                        "#34d399",
-                        "#fbbf24",
-                        "#a78bfa",
-                        "#f87171",
-                        "#38bdf8",
-                      ],
-                borderWidth: 2,
-                tension: 0.35,
-                fill: tipo === "line",
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                display: tipo !== "line",
-              },
-            },
-          },
-        });
-      });
-    }
-
     // -----------------------------------------------------
     // Inicialização
     // -----------------------------------------------------

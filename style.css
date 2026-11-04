@@ -1044,3 +1044,93 @@ tbody tr:hover {
     transition-duration: 0.01ms !important;
   }
 }
+
+.history-empty {
+  display: grid;
+  min-height: 260px;
+  place-items: center;
+  margin-top: 18px;
+  padding: 28px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.7;
+}
+
+.allocation-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: 24px;
+  margin-top: 15px;
+}
+
+.allocation-chart-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 290px;
+  height: 260px;
+  margin: 0 auto;
+}
+
+.allocation-chart-wrap canvas[hidden] {
+  display: none !important;
+}
+
+.allocation-details {
+  min-width: 0;
+}
+
+.allocation-details .legend-list {
+  gap: 16px;
+}
+
+.allocation-details .legend-item > strong {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.allocation-details .legend-name {
+  min-width: 0;
+}
+
+.allocation-details .legend-name > span {
+  overflow-wrap: anywhere;
+}
+
+.allocation-empty {
+  margin: 0;
+  padding: 16px;
+  border: 1px dashed var(--border);
+  border-radius: 9px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.allocation-empty[hidden] {
+  display: none;
+}
+
+@media (max-width: 680px) {
+  .allocation-content {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .allocation-chart-wrap {
+    width: min(100%, 260px);
+    height: 230px;
+  }
+}
+
+.charts-grid {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr);
+}
+
+@media (max-width: 900px) {
+  .charts-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

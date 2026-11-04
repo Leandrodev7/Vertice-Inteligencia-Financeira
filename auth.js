@@ -420,17 +420,29 @@
     // Estado inicial e mudanças de login
     // -----------------------------------------------------
 
-    cliente.auth
-      .getSession()
-      .then(({ data }) => atualizarTopo(data?.session?.user))
-      .catch((erro) => {
-        console.error("Erro ao ler a sessão:", erro);
-        atualizarTopo(null);
-      });
+    let recebeuEventoAutenticacao = false;
 
     cliente.auth.onAuthStateChange((evento, sessao) => {
+      recebeuEventoAutenticacao = true;
       atualizarTopo(sessao?.user);
     });
+
+    cliente.auth
+      .getSession()
+      .then(({ data, error }) => {
+        if (error) throw error;
+
+        if (!recebeuEventoAutenticacao) {
+          atualizarTopo(data?.session?.user);
+        }
+      })
+      .catch((erro) => {
+        console.error("Erro ao ler a sessão:", erro);
+
+        if (!recebeuEventoAutenticacao) {
+          atualizarTopo(null);
+        }
+      });
   }
 
   if (document.readyState === "loading") {

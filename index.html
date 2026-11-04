@@ -48,8 +48,8 @@
           <div class="status-card">
             <span class="status-dot"></span>
             <div>
-              <strong>Ambiente de demonstração</strong>
-              <small>Valores ilustrativos</small>
+              <strong>Carteira pessoal</strong>
+              <small>Dados da sua conta</small>
             </div>
           </div>
           <div class="sidebar-footer">
@@ -75,8 +75,7 @@
           </div>
 
           <div class="topbar-right">
-            <span class="demo-badge">DEMO</span>
-            <div class="avatar" aria-label="Perfil demonstrativo">V</div>
+            <div class="avatar" aria-label="Vértice">V</div>
           </div>
         </header>
 
@@ -85,8 +84,7 @@
             <p class="eyebrow">PAINEL FINANCEIRO</p>
             <h1>Visão geral</h1>
             <p class="page-description">
-              Uma visão clara dos seus investimentos e da evolução do seu
-              patrimônio.
+              Acompanhe os valores aplicados e a composição da sua carteira.
             </p>
           </div>
           <button class="button button-secondary" id="export-button">
@@ -94,56 +92,44 @@
           </button>
         </section>
 
-        <div class="demo-notice">
-          <span>ⓘ</span>
-          <p>
-            Você está visualizando dados fictícios para demonstração. Nenhum
-            valor representa uma carteira real.
-          </p>
-        </div>
-
         <section class="metrics-grid" aria-label="Resumo financeiro">
           <article class="metric-card">
             <div class="metric-heading">
-              <span>Patrimônio total</span>
+              <span>Total investido</span>
               <span class="metric-icon gold">◇</span>
             </div>
-            <div class="metric-value" id="patrimonio">R$ 128.450,80</div>
-            <div class="metric-foot">Capital investido + rendimentos</div>
+            <div class="metric-value" id="total-investido">—</div>
+            <div class="metric-foot">Soma dos valores aplicados</div>
             <div class="metric-decoration gold-line"></div>
           </article>
 
           <article class="metric-card">
             <div class="metric-heading">
-              <span>Rendimento no mês</span>
+              <span>Investimentos</span>
               <span class="metric-icon green">↗</span>
             </div>
-            <div class="metric-value positive">+ R$ 1.284,50</div>
-            <div class="metric-foot">
-              <span class="positive">+1,02%</span> no período demonstrativo
-            </div>
+            <div class="metric-value" id="quantidade-investimentos">—</div>
+            <div class="metric-foot">Registros na sua carteira</div>
             <div class="metric-decoration green-line"></div>
           </article>
 
           <article class="metric-card">
             <div class="metric-heading">
-              <span>Rentabilidade acumulada</span>
+              <span>Modalidades</span>
               <span class="metric-icon purple">%</span>
             </div>
-            <div class="metric-value">+10,42%</div>
-            <div class="metric-foot">Exemplo de desempenho da carteira</div>
+            <div class="metric-value" id="quantidade-modalidades">—</div>
+            <div class="metric-foot">Tipos distintos de investimento</div>
             <div class="metric-decoration purple-line"></div>
           </article>
 
           <article class="metric-card">
             <div class="metric-heading">
-              <span>Próximos vencimentos</span>
+              <span>Vencimentos próximos</span>
               <span class="metric-icon orange">◷</span>
             </div>
-            <div class="metric-value">
-              03 <span class="metric-unit">ativos</span>
-            </div>
-            <div class="metric-foot">Exemplo de alertas de vencimento</div>
+            <div class="metric-value" id="vencimentos-proximos">—</div>
+            <div class="metric-foot">Nos próximos 90 dias</div>
             <div class="metric-decoration orange-line"></div>
           </article>
         </section>
@@ -152,27 +138,13 @@
           <article class="panel chart-panel" id="historico">
             <div class="panel-heading">
               <div>
-                <h2>Evolução do patrimônio</h2>
-                <p>Acompanhamento histórico demonstrativo</p>
+                <h2>Histórico patrimonial</h2>
+                <p>Valores históricos ainda não disponíveis</p>
               </div>
-              <select
-                id="period-filter"
-                class="select-control"
-                aria-label="Período do gráfico"
-              >
-                <option value="6">6 meses</option>
-                <option value="12">12 meses</option>
-              </select>
             </div>
-            <div class="chart-summary">
-              <strong>R$ 128.450,80</strong>
-              <span class="positive">↗ +10,42%</span>
-            </div>
-            <div class="line-chart-wrap">
-              <canvas
-                id="patrimonio-chart"
-                aria-label="Gráfico demonstrativo de evolução do patrimônio"
-              ></canvas>
+            <div class="history-empty">
+              A evolução estará disponível quando houver registros históricos
+              dos valores da carteira.
             </div>
           </article>
 
@@ -180,44 +152,21 @@
             <div class="panel-heading">
               <div>
                 <h2>Distribuição da carteira</h2>
-                <p>Composição ilustrativa</p>
-              </div>
-              <button
-                class="icon-button"
-                id="allocation-info"
-                aria-label="Informações da distribuição"
-              >
-                ⓘ
-              </button>
-            </div>
-            <div class="donut-wrap">
-              <canvas
-                id="allocation-chart"
-                aria-label="Gráfico demonstrativo de distribuição dos investimentos"
-              ></canvas>
-              <div class="donut-center">
-                <small>Patrimônio</small>
-                <strong>100%</strong>
+                <p>Participação por modalidade, com base no valor investido</p>
               </div>
             </div>
-            <div class="legend-list">
-              <div class="legend-item">
-                <span class="legend-name"
-                  ><i class="legend-dot dot-green"></i>CDB</span
-                >
-                <strong>45%</strong>
+            <div class="allocation-content">
+              <div class="allocation-chart-wrap">
+                <canvas
+                  id="allocation-chart"
+                  aria-label="Gráfico de pizza da distribuição real dos investimentos por modalidade"
+                ></canvas>
               </div>
-              <div class="legend-item">
-                <span class="legend-name"
-                  ><i class="legend-dot dot-purple"></i>Tesouro Direto</span
-                >
-                <strong>30%</strong>
-              </div>
-              <div class="legend-item">
-                <span class="legend-name"
-                  ><i class="legend-dot dot-orange"></i>LCI / LCA</span
-                >
-                <strong>25%</strong>
+              <div class="allocation-details">
+                <div class="legend-list" id="allocation-legend"></div>
+                <p class="allocation-empty" id="allocation-empty" role="status">
+                  Entre na sua conta para consultar a distribuição.
+                </p>
               </div>
             </div>
           </article>
@@ -227,7 +176,7 @@
           <div class="panel-heading investments-heading">
             <div>
               <h2>Meus investimentos</h2>
-              <p>Exemplos de produtos de renda fixa</p>
+              <p>Investimentos cadastrados na sua conta</p>
             </div>
             <div class="table-actions">
               <input
@@ -254,63 +203,15 @@
                   <th>Situação</th>
                 </tr>
               </thead>
-              <tbody id="investment-table">
-                <tr>
-                  <td>
-                    <div class="product-name">
-                      <span class="product-icon green-bg">C</span>
-                      <div>
-                        <strong>CDB 100% CDI</strong
-                        ><small>Banco demonstrativo</small>
-                      </div>
-                    </div>
-                  </td>
-                  <td>R$ 50.000,00</td>
-                  <td class="positive">+8,40%</td>
-                  <td>15/06/2027</td>
-                  <td><span class="status-pill status-active">Ativo</span></td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="product-name">
-                      <span class="product-icon purple-bg">T</span>
-                      <div>
-                        <strong>Tesouro IPCA+</strong
-                        ><small>Título ilustrativo</small>
-                      </div>
-                    </div>
-                  </td>
-                  <td>R$ 45.000,00</td>
-                  <td class="positive">+11,20%</td>
-                  <td>15/08/2029</td>
-                  <td><span class="status-pill status-active">Ativo</span></td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="product-name">
-                      <span class="product-icon orange-bg">L</span>
-                      <div>
-                        <strong>LCI 95% CDI</strong
-                        ><small>Banco demonstrativo</small>
-                      </div>
-                    </div>
-                  </td>
-                  <td>R$ 33.450,80</td>
-                  <td class="positive">+7,10%</td>
-                  <td>20/12/2026</td>
-                  <td>
-                    <span class="status-pill status-attention">A vencer</span>
-                  </td>
-                </tr>
-              </tbody>
+              <tbody id="investment-table"></tbody>
             </table>
             <div id="empty-state" class="empty-state" hidden>
-              Nenhum investimento encontrado com esse nome.
+              Entre na sua conta para visualizar seus investimentos.
             </div>
           </div>
           <div class="table-footer">
-            <span>3 registros demonstrativos</span>
-            <span>Os valores serão substituídos pelos dados do sistema.</span>
+            <span>Investimentos da sua conta</span>
+            <span>Entre para carregar seus dados.</span>
           </div>
         </section>
 
@@ -343,7 +244,7 @@
 
         <footer class="app-footer">
           <span>Vértice — Inteligência Financeira</span>
-          <span>Protótipo em desenvolvimento · Dados demonstrativos</span>
+          <span>Informações calculadas com base nos dados cadastrados</span>
         </footer>
       </main>
     </div>
